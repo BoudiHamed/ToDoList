@@ -6,18 +6,25 @@ const btnNewTask = document.querySelector(".add-new-task");
 const btnAddTask = document.querySelector(".add-task");
 const textAreaInput = document.querySelector(".text-area-input");
 const btnDelAll = document.querySelector(".del-all-btn");
-const delAllBtnAll = document.querySelector('.del-all-btn-all ')
+const delAllBtnAll = document.querySelector(".del-all-btn-all ");
 const checkboxFullContainer = document.querySelector(".checkBox-fullContainer");
-
 const modal = document.querySelector(".modal");
 const modalOverlay = document.querySelector(".modal-overlay");
 const modalCancel = document.querySelector(".modal-cancel");
 const modalConfirm = document.querySelector(".modal-confirm");
 
+//empty Array to store the tasks
+let dataOfTasksArray = [];
+// ----------------------------------------------------------------------------------------
 const checkBoxAppearance = function () {
-  const html = `
+
+  if (textAreaInput.value !== "") {
+    //add the data of the tasks to array
+const newTask = arrayOfTasks(textAreaInput.value);
+      const html = `
     <div
       class="task-item shadow-lg w-150 mx-auto my-2 items-center justify-between rounded border-solid dark:border-gray-500 border-1 flex"
+      id=${newTask.id}
     >
       <div class="flex items-center ps-4 rounded-sm dark:border-gray-700">
         <input
@@ -38,24 +45,16 @@ const checkBoxAppearance = function () {
       </button>
     </div>
   `;
-  if (textAreaInput.value !== "") {
     // Insert the new task
     checkboxFullContainer.insertAdjacentHTML("beforeend", html);
-    //add the data of the tasks to array
-    arrayOfTasks(textAreaInput.value);
     // Clear input
     textAreaInput.value = "";
-    console.log(dataOfTasksArray);
-
     //btnDelAll appear
     btnDelAll.classList.remove("hidden");
   } else {
     alert("you have to fill your task");
   }
 };
-
-//empty Array to store the tasks
-let dataOfTasksArray = [];
 
 //check if there is data in local storage
 if (localStorage.getItem("tasks")) {
@@ -66,6 +65,7 @@ if (localStorage.getItem("tasks")) {
     const html = `
     <div
       class="task-item shadow-lg w-150 mx-auto my-2 items-center justify-between rounded border-solid dark:border-gray-500 border-1 flex"
+      data-id="${element.id}"
     >
       <div class="flex items-center ps-4 rounded-sm dark:border-gray-700">
         <input
@@ -95,15 +95,14 @@ const getStoredData = function () {
   let data = localStorage.getItem("tasks");
   if (data) {
     let tasks = JSON.parse(data);
-    console.log(tasks);
   } else return;
 };
 getStoredData();
 
 //save tasks in localstorage
-function saveTasks() {
+const saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(dataOfTasksArray));
-}
+};
 
 const arrayOfTasks = function (taskData) {
   //Task data
@@ -115,6 +114,16 @@ const arrayOfTasks = function (taskData) {
 
   //push the data of the tasks
   dataOfTasksArray.push(task);
+  saveTasks();
+  return task;
+};
+
+//delete task function
+
+const deleteTask = function (taskId) {
+  dataOfTasksArray = dataOfTasksArray.filter(
+    (task) => task.id !== Number(taskId)
+  );
   saveTasks();
 };
 
@@ -130,7 +139,13 @@ btnAddTask.addEventListener("click", checkBoxAppearance);
 // single delete functionality
 document.addEventListener("click", function (e) {
   if (e.target.classList.contains("x-button")) {
-    e.target.closest(".task-item").remove();
+    const taskItem = e.target.closest(".task-item");
+    taskItem.remove();
+    const id = taskItem.dataset.id;
+    deleteTask(id);
+    if (dataOfTasksArray.length === 0) {
+      btnDelAll.classList.add("hidden");
+    }
   }
 });
 // All delete functionality
@@ -148,6 +163,7 @@ modalCancel.addEventListener("click", function () {
 // Modal confirm delete button
 modalConfirm.addEventListener("click", function () {
   checkboxFullContainer.innerHTML = "";
+  localStorage.clear();
   btnDelAll.classList.add("hidden");
   modal.classList.remove("show");
   modalOverlay.classList.remove("show-overlay");
