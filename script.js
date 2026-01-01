@@ -17,14 +17,13 @@ const modalConfirm = document.querySelector(".modal-confirm");
 let dataOfTasksArray = [];
 // ----------------------------------------------------------------------------------------
 const checkBoxAppearance = function () {
-
   if (textAreaInput.value !== "") {
     //add the data of the tasks to array
-const newTask = arrayOfTasks(textAreaInput.value);
-      const html = `
+    const newTask = arrayOfTasks(textAreaInput.value);
+    const html = `
     <div
       class="task-item shadow-lg w-150 mx-auto my-2 items-center justify-between rounded border-solid dark:border-gray-500 border-1 flex"
-      id=${newTask.id}
+      data-id=${newTask.id}
     >
       <div class="flex items-center ps-4 rounded-sm dark:border-gray-700">
         <input
@@ -135,6 +134,13 @@ btnNewTask.addEventListener("click", function () {
 
 // Add new task when "Add Task" button clicked
 btnAddTask.addEventListener("click", checkBoxAppearance);
+// Add new task when "Enter" key pressed
+textAreaInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    checkBoxAppearance();
+  }
+});
 
 // single delete functionality
 document.addEventListener("click", function (e) {
@@ -145,6 +151,9 @@ document.addEventListener("click", function (e) {
     deleteTask(id);
     if (dataOfTasksArray.length === 0) {
       btnDelAll.classList.add("hidden");
+      localStorage.clear();
+      textArea.classList.add("hidden");
+      btnNewTask.classList.remove("hidden");
     }
   }
 });
@@ -162,9 +171,12 @@ modalCancel.addEventListener("click", function () {
 
 // Modal confirm delete button
 modalConfirm.addEventListener("click", function () {
-  checkboxFullContainer.innerHTML = "";
   localStorage.clear();
+  dataOfTasksArray = [];
+  checkboxFullContainer.innerHTML = "";
   btnDelAll.classList.add("hidden");
   modal.classList.remove("show");
   modalOverlay.classList.remove("show-overlay");
+  textArea.classList.add("hidden");
+  btnNewTask.classList.remove("hidden");
 });
