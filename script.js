@@ -103,6 +103,7 @@ const saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(dataOfTasksArray));
 };
 
+//function to create array of tasks
 const arrayOfTasks = function (taskData) {
   //Task data
   const task = {
@@ -115,15 +116,6 @@ const arrayOfTasks = function (taskData) {
   dataOfTasksArray.push(task);
   saveTasks();
   return task;
-};
-
-//delete task function
-
-const deleteTask = function (taskId) {
-  dataOfTasksArray = dataOfTasksArray.filter(
-    (task) => task.id !== Number(taskId)
-  );
-  saveTasks();
 };
 
 // Show text area when "New Task" button clicked
@@ -148,10 +140,14 @@ document.addEventListener("click", function (e) {
     const taskItem = e.target.closest(".task-item");
     taskItem.remove();
     const id = taskItem.dataset.id;
-    deleteTask(id);
+    dataOfTasksArray = dataOfTasksArray.filter(
+      (task) => task.id !== Number(id)
+    );
+    saveTasks();
+
     if (dataOfTasksArray.length === 0) {
-      btnDelAll.classList.add("hidden");
       localStorage.clear();
+      btnDelAll.classList.add("hidden");
       textArea.classList.add("hidden");
       btnNewTask.classList.remove("hidden");
     }
@@ -180,3 +176,20 @@ modalConfirm.addEventListener("click", function () {
   textArea.classList.add("hidden");
   btnNewTask.classList.remove("hidden");
 });
+
+// (Toggle Task)
+document.addEventListener("change", function (e) {
+  if (e.target.type === "checkbox") {
+    const taskItem = e.target.closest(".task-item");
+    const label = taskItem.querySelector(".check-box-label");
+    const taskId = taskItem.dataset.id;
+    label.classList.toggle("completed-task");
+    dataOfTasksArray.forEach((task) => {
+      if (task.id === Number(taskId)) {
+        task.completed = !task.completed;
+      }
+    });
+    saveTasks();
+  }
+});
+// End of the code

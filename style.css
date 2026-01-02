@@ -8,4 +8,8 @@
     opacity: 0.6 ;
     pointer-events: auto ;
   }
-
+.completed-task {
+    text-decoration: line-through;
+    opacity: 0.8;
+    color: #9ca3af; 
+}
